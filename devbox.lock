@@ -1,0 +1,114 @@
+{
+  "lockfile_version": "1",
+  "packages": {
+    "github:NixOS/nixpkgs/nixpkgs-unstable": {
+      "last_modified": "2026-02-24T08:56:33Z",
+      "resolved": "github:NixOS/nixpkgs/ea7f1f06811ce7fcc81d6c6fd4213150c23edcf2?lastModified=1771923393"
+    },
+    "portaudio@latest": {
+      "last_modified": "2026-02-23T15:40:43Z",
+      "resolved": "github:NixOS/nixpkgs/80d901ec0377e19ac3f7bb8c035201e2e098cc97#portaudio",
+      "source": "devbox-search",
+      "version": "190700_20210406",
+      "systems": {
+        "aarch64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/ag3riynjg90zr8qi7dihbp81xa8akzs8-portaudio-190700_20210406",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/ag3riynjg90zr8qi7dihbp81xa8akzs8-portaudio-190700_20210406"
+        },
+        "aarch64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/hcv3z3i1faq7qji2jy5g6phsvnk9bsj8-portaudio-190700_20210406",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/hcv3z3i1faq7qji2jy5g6phsvnk9bsj8-portaudio-190700_20210406"
+        },
+        "x86_64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/p1d87kx1hxlbdbya6a4nh38y6l0d8b6h-portaudio-190700_20210406",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/p1d87kx1hxlbdbya6a4nh38y6l0d8b6h-portaudio-190700_20210406"
+        },
+        "x86_64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/p7k69dq3mz9knxsmb2qv9ql3qry1c2bj-portaudio-190700_20210406",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/p7k69dq3mz9knxsmb2qv9ql3qry1c2bj-portaudio-190700_20210406"
+        }
+      }
+    },
+    "python@3.12": {
+      "last_modified": "2026-02-23T15:40:43Z",
+      "plugin_version": "0.0.4",
+      "resolved": "github:NixOS/nixpkgs/80d901ec0377e19ac3f7bb8c035201e2e098cc97#python312",
+      "source": "devbox-search",
+      "version": "3.12.12",
+      "systems": {
+        "aarch64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/6m0sga6inpabxm4nh7ab8zvychy66d48-python3-3.12.12",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/6m0sga6inpabxm4nh7ab8zvychy66d48-python3-3.12.12"
+        },
+        "aarch64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/p3dgpm3z2s0k2sf6838ybrqvz6r89ry2-python3-3.12.12",
+              "default": true
+            },
+            {
+              "name": "debug",
+              "path": "/nix/store/xcz6h6sqxbhg07ccjh2qr2xxrnh4mc70-python3-3.12.12-debug"
+            }
+          ],
+          "store_path": "/nix/store/p3dgpm3z2s0k2sf6838ybrqvz6r89ry2-python3-3.12.12"
+        },
+        "x86_64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/ll4yja86q574m1gp3bzzk9wshcbl332k-python3-3.12.12",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/ll4yja86q574m1gp3bzzk9wshcbl332k-python3-3.12.12"
+        },
+        "x86_64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/flbw79qdmvzbdrafd93avy5a7d29m2vb-python3-3.12.12",
+              "default": true
+            },
+            {
+              "name": "debug",
+              "path": "/nix/store/pwz8rx97fb0laq9scg8zycmyh5xixa4a-python3-3.12.12-debug"
+            }
+          ],
+          "store_path": "/nix/store/flbw79qdmvzbdrafd93avy5a7d29m2vb-python3-3.12.12"
+        }
+      }
+    }
+  }
+}
