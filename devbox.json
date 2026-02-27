@@ -1,0 +1,24 @@
+{
+  "$schema": "https://raw.githubusercontent.com/jetify-com/devbox/0.16.0/.schema/devbox.schema.json",
+  "packages": [
+    "python@3.12",
+    "portaudio@latest"
+  ],
+  "env": {
+    "LD_LIBRARY_PATH": "${DEVBOX_PACKAGES_DIR}/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+  },
+  "shell": {
+    "init_hook": [
+      "[ ! -d .venv ] && python -m venv .venv || true",
+      ". .venv/bin/activate"
+    ],
+    "scripts": {
+      "test": [
+        "pytest"
+      ],
+      "lint": [
+        "python -m py_compile src/tse_pipewire/*.py"
+      ]
+    }
+  }
+}
