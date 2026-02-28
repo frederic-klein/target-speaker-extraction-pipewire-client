@@ -149,10 +149,11 @@ class TestTestCommand:
         mock_config.get.side_effect = lambda key, **kw: {
             "audio.sample_rate": 48000,
             "audio.tse_sample_rate": 16000,
+            "audio.segment_ms": 160,
         }.get(key, kw.get("default"))
         mock_config_cls.return_value = mock_config
 
-        mock_load_emb.return_value = np.random.randn(192).astype(np.float32)
+        mock_load_emb.return_value = np.random.randn(256).astype(np.float32)
         mock_sf_read.return_value = (np.random.randn(48000).astype(np.float32), 48000)
 
         mock_pipeline = MagicMock()
@@ -163,3 +164,38 @@ class TestTestCommand:
         result = runner.invoke(main, ["test", "--profile", "fred", "--input", "in.wav", "--output", "out.wav"])
         assert result.exit_code == 0
         mock_sf_write.assert_called_once()
+
+    @patch("tse_pipewire.cli.sf.write")
+    @patch("tse_pipewire.cli.sf.read")
+    @patch("tse_pipewire.cli.AudioPipeline")
+    @patch("tse_pipewire.cli.TSEEngine")
+    @patch("tse_pipewire.cli.load_embedding")
+    @patch("tse_pipewire.cli.Config")
+    def test_test_passes_segment_samples(
+        self, mock_config_cls, mock_load_emb, mock_engine_cls, mock_pipeline_cls,
+        mock_sf_read, mock_sf_write
+    ):
+        mock_config = MagicMock()
+        mock_config.profile_path.return_value = Path("/tmp/profiles/fred.npy")
+        mock_config.models_dir = Path("/tmp/models")
+        mock_config.get.side_effect = lambda key, **kw: {
+            "audio.sample_rate": 48000,
+            "audio.tse_sample_rate": 16000,
+            "audio.segment_ms": 160,
+        }.get(key, kw.get("default"))
+        mock_config_cls.return_value = mock_config
+
+        mock_load_emb.return_value = np.random.randn(256).astype(np.float32)
+        mock_sf_read.return_value = (np.random.randn(48000).astype(np.float32), 48000)
+
+        mock_pipeline = MagicMock()
+        mock_pipeline.process_offline.return_value = np.random.randn(48000).astype(np.float32)
+        mock_pipeline_cls.return_value = mock_pipeline
+
+        runner = CliRunner()
+        runner.invoke(main, ["test", "--profile", "fred", "--input", "in.wav", "--output", "out.wav"])
+
+        # segment_samples = 160ms * 16000 / 1000 = 2560
+        mock_engine_cls.assert_called_once()
+        call_kwargs = mock_engine_cls.call_args
+        assert call_kwargs[1]["segment_samples"] == 2560

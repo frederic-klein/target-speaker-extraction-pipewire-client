@@ -77,7 +77,7 @@ class TestEnrollSpeaker:
         mock_rec.return_value = fake_audio.reshape(-1, 1)
 
         mock_extractor = MagicMock()
-        fake_embedding = np.random.randn(192).astype(np.float32)
+        fake_embedding = np.random.randn(256).astype(np.float32)
         mock_extractor.compute_embedding.return_value = fake_embedding
         mock_extractor_cls.return_value = mock_extractor
 
@@ -108,7 +108,7 @@ class TestEnrollSpeaker:
         mock_rec.return_value = fake_audio.reshape(-1, 1)
 
         mock_extractor = MagicMock()
-        fake_embedding = np.random.randn(192).astype(np.float32)
+        fake_embedding = np.random.randn(256).astype(np.float32)
         mock_extractor.compute_embedding.return_value = fake_embedding
         mock_extractor_cls.return_value = mock_extractor
 

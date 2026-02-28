@@ -9,7 +9,10 @@ DEFAULTS = {
     "audio": {
         "sample_rate": 48000,
         "tse_sample_rate": 16000,
-        "chunk_size": 256,
+        "segment_ms": 160,
+    },
+    "model": {
+        "embedding_dim": 256,
     },
     "rnnoise": {
         "vad_threshold": 50.0,

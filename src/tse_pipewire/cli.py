@@ -56,10 +56,15 @@ def start(profile: str, input_device: str | None):
     embedding = load_embedding(embedding_path)
 
     tse_model_path = str(config.models_dir / "tse_model.onnx")
-    engine = TSEEngine(model_path=tse_model_path, embedding=embedding)
+    tse_sr = config.get("audio.tse_sample_rate")
+    segment_ms = config.get("audio.segment_ms")
+    segment_samples = int(segment_ms * tse_sr / 1000)
+    engine = TSEEngine(
+        model_path=tse_model_path, embedding=embedding,
+        segment_samples=segment_samples,
+    )
 
     input_sr = config.get("audio.sample_rate")
-    tse_sr = config.get("audio.tse_sample_rate")
     pipeline = AudioPipeline(tse_engine=engine, input_sr=input_sr, tse_sr=tse_sr)
 
     with PipeWireClient(sample_rate=input_sr) as pw_client:
@@ -110,10 +115,15 @@ def test(profile: str, input_file: str, output_file: str):
     embedding = load_embedding(config.profile_path(profile))
 
     tse_model_path = str(config.models_dir / "tse_model.onnx")
-    engine = TSEEngine(model_path=tse_model_path, embedding=embedding)
+    tse_sr = config.get("audio.tse_sample_rate")
+    segment_ms = config.get("audio.segment_ms")
+    segment_samples = int(segment_ms * tse_sr / 1000)
+    engine = TSEEngine(
+        model_path=tse_model_path, embedding=embedding,
+        segment_samples=segment_samples,
+    )
 
     input_sr = config.get("audio.sample_rate")
-    tse_sr = config.get("audio.tse_sample_rate")
     pipeline = AudioPipeline(tse_engine=engine, input_sr=input_sr, tse_sr=tse_sr)
 
     audio, sr = sf.read(input_file, dtype="float32")

@@ -41,13 +41,13 @@ def test_save_and_load_config(tmp_path, monkeypatch):
     monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
     config = Config()
     config.set("audio.sample_rate", 48000)
-    config.set("audio.chunk_size", 256)
+    config.set("audio.segment_ms", 160)
     config.save()
 
     loaded = Config()
     loaded.load()
     assert loaded.get("audio.sample_rate") == 48000
-    assert loaded.get("audio.chunk_size") == 256
+    assert loaded.get("audio.segment_ms") == 160
 
 
 def test_get_default_value(tmp_path, monkeypatch):
@@ -67,7 +67,8 @@ def test_default_values(tmp_path, monkeypatch):
     config = Config()
     assert config.get("audio.sample_rate") == 48000
     assert config.get("audio.tse_sample_rate") == 16000
-    assert config.get("audio.chunk_size") == 256
+    assert config.get("audio.segment_ms") == 160
+    assert config.get("model.embedding_dim") == 256
 
 
 def test_ensure_dirs_creates_directories(tmp_path, monkeypatch):

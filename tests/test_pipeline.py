@@ -9,10 +9,10 @@ from tse_pipewire.audio_pipeline import AudioPipeline
 
 
 class TestAudioPipeline:
-    def _make_mock_engine(self, chunk_size=320):
+    def _make_mock_engine(self, segment_samples=2560):
         engine = MagicMock()
-        engine.chunk_size = chunk_size
-        engine.process_chunk.side_effect = lambda x: x * 0.5
+        engine.segment_samples = segment_samples
+        engine.process_segment.side_effect = lambda x: x * 0.5
         return engine
 
     def test_init_stores_parameters(self):
@@ -50,8 +50,7 @@ class TestAudioPipeline:
         assert len(audio_48k) == expected_length
 
     def test_process_offline(self):
-        chunk_size = 320
-        engine = self._make_mock_engine(chunk_size=chunk_size)
+        engine = self._make_mock_engine()
         engine.process_file.side_effect = lambda x: x * 0.5
 
         pipeline = AudioPipeline(
@@ -68,8 +67,7 @@ class TestAudioPipeline:
         assert len(result) == len(audio_48k)
 
     def test_process_offline_same_sample_rate(self):
-        chunk_size = 320
-        engine = self._make_mock_engine(chunk_size=chunk_size)
+        engine = self._make_mock_engine()
         engine.process_file.side_effect = lambda x: x * 0.5
 
         pipeline = AudioPipeline(
@@ -86,9 +84,9 @@ class TestAudioPipeline:
         engine.process_file.assert_called_once()
 
     def test_process_callback_accumulates_and_processes(self):
-        chunk_size = 160  # small chunk for TSE at 16kHz
-        engine = self._make_mock_engine(chunk_size=chunk_size)
-        engine.process_chunk.side_effect = lambda x: x * 0.5
+        segment_samples = 160  # small segment for test
+        engine = self._make_mock_engine(segment_samples=segment_samples)
+        engine.process_segment.side_effect = lambda x: x * 0.5
 
         pipeline = AudioPipeline(
             tse_engine=engine,
@@ -96,13 +94,13 @@ class TestAudioPipeline:
             tse_sr=16000,
         )
 
-        # Feed 480 samples at 48kHz = 160 at 16kHz = exactly 1 TSE chunk
+        # Feed 480 samples at 48kHz = 160 at 16kHz = exactly 1 TSE segment
         indata = np.random.randn(480, 1).astype(np.float32)
         outdata = np.zeros_like(indata)
         pipeline.audio_callback(indata, outdata, 480, None, None)
 
         # Output should have been filled
-        assert not np.all(outdata == 0) or engine.process_chunk.called
+        assert not np.all(outdata == 0) or engine.process_segment.called
 
     def test_reset_resets_engine_and_buffers(self):
         engine = self._make_mock_engine()
