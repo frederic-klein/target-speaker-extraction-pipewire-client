@@ -9,6 +9,7 @@ Usage:
 """
 
 import argparse
+import hashlib
 import os
 import sys
 from pathlib import Path
@@ -166,6 +167,18 @@ def main():
 
     export_speaker_encoder(model, output_dir / "speaker_encoder.onnx")
     export_separator(model, output_dir / "tse_model.onnx")
+
+    # Generate checksums for integrity verification
+    checksums_path = output_dir / "checksums.sha256"
+    with open(checksums_path, "w") as f:
+        for model_name in ["speaker_encoder.onnx", "tse_model.onnx"]:
+            model_file = output_dir / model_name
+            sha256 = hashlib.sha256()
+            with open(model_file, "rb") as mf:
+                while chunk := mf.read(8192):
+                    sha256.update(chunk)
+            f.write(f"{sha256.hexdigest()}  {model_name}\n")
+    print(f"Checksums written to {checksums_path}")
 
     print(f"\nDone! Models saved to {output_dir}")
     print("  - speaker_encoder.onnx (ResNet34, fbank → 256-dim embedding)")

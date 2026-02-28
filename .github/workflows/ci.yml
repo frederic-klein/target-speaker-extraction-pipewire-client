@@ -25,3 +25,6 @@ jobs:
 
       - name: Run tests
         run: pytest
+
+      - name: Run security checks
+        run: bash scripts/security_check.sh

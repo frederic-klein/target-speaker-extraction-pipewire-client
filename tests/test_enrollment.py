@@ -1,5 +1,6 @@
 """Tests for enrollment process."""
 
+import stat
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
@@ -63,6 +64,14 @@ def test_save_enrollment_wav_creates_parent_dirs(tmp_path):
     assert path.exists()
 
 
+def test_save_enrollment_wav_file_permissions_600(tmp_path):
+    sr = 16000
+    audio = np.random.randn(sr).astype(np.float32)
+    path = tmp_path / "profiles" / "enrollment.wav"
+    save_enrollment_wav(audio, sr, path)
+    assert stat.S_IMODE(path.stat().st_mode) == 0o600
+
+
 class TestEnrollSpeaker:
     @patch("tse_pipewire.enrollment.sd.rec")
     @patch("tse_pipewire.enrollment.sd.wait")
@@ -121,3 +130,28 @@ class TestEnrollSpeaker:
         )
 
         assert result.snr_warning is True
+
+    @patch("tse_pipewire.enrollment.sd.rec")
+    @patch("tse_pipewire.enrollment.sd.wait")
+    @patch("tse_pipewire.enrollment.EmbeddingExtractor")
+    def test_enroll_speaker_profiles_dir_permissions_700(
+        self, mock_extractor_cls, mock_wait, mock_rec, tmp_path
+    ):
+        sr = 16000
+        profiles_dir = tmp_path / "profiles"
+        fake_audio = np.random.randn(sr * 5).astype(np.float32)
+        mock_rec.return_value = fake_audio.reshape(-1, 1)
+
+        mock_extractor = MagicMock()
+        mock_extractor.compute_embedding.return_value = np.random.randn(256).astype(np.float32)
+        mock_extractor_cls.return_value = mock_extractor
+
+        enroll_speaker(
+            name="testuser",
+            duration=5,
+            sample_rate=sr,
+            profiles_dir=profiles_dir,
+            model_path="fake.onnx",
+        )
+
+        assert stat.S_IMODE(profiles_dir.stat().st_mode) == 0o700

@@ -134,6 +134,29 @@ def test(profile: str, input_file: str, output_file: str):
 
 
 @main.command()
+@click.option("--name", required=True, help="Profile name to delete.")
+@click.confirmation_option(prompt="Are you sure you want to delete this profile?")
+def delete_profile(name: str):
+    """Delete a speaker profile and its enrollment recording."""
+    config = Config()
+    profiles_dir = config.profiles_dir
+
+    npy_file = profiles_dir / f"{name}.npy"
+    wav_file = profiles_dir / f"{name}_enrollment.wav"
+
+    deleted = []
+    for f in [npy_file, wav_file]:
+        if f.exists():
+            f.unlink()
+            deleted.append(f.name)
+
+    if deleted:
+        click.echo(f"Deleted: {', '.join(deleted)}")
+    else:
+        click.echo(f"No profile found for '{name}'.")
+
+
+@main.command()
 def status():
     """Show current TSE filter status."""
     config = Config()

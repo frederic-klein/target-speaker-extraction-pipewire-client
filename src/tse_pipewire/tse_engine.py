@@ -1,7 +1,11 @@
 """ONNX Runtime inference engine for Target Speaker Extraction."""
 
+from pathlib import Path
+
 import numpy as np
 import onnxruntime as ort
+
+from tse_pipewire.model_integrity import verify_model_integrity
 
 
 class TSEEngine:
@@ -10,6 +14,8 @@ class TSEEngine:
     def __init__(
         self, model_path: str, embedding: np.ndarray, segment_samples: int = 2560
     ):
+        checksums_path = Path(model_path).parent / "checksums.sha256"
+        verify_model_integrity(Path(model_path), checksums_path)
         providers = ["CPUExecutionProvider"]
         self._session = ort.InferenceSession(model_path, providers=providers)
 

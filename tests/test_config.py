@@ -1,5 +1,6 @@
 """Tests for configuration management."""
 
+import stat
 from pathlib import Path
 
 from tse_pipewire.config import Config
@@ -93,3 +94,22 @@ def test_set_nested_key(tmp_path, monkeypatch):
     config = Config()
     config.set("rnnoise.vad_threshold", 50.0)
     assert config.get("rnnoise.vad_threshold") == 50.0
+
+
+def test_ensure_dirs_permissions_700(tmp_path, monkeypatch):
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path / "config"))
+    monkeypatch.setenv("XDG_DATA_HOME", str(tmp_path / "data"))
+    config = Config()
+    config.ensure_dirs()
+
+    for d in [config.config_dir, config.profiles_dir, config.models_dir]:
+        assert stat.S_IMODE(d.stat().st_mode) == 0o700
+
+
+def test_save_config_file_permissions_600(tmp_path, monkeypatch):
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
+    config = Config()
+    config.save()
+
+    config_file = config.config_dir / "config.toml"
+    assert stat.S_IMODE(config_file.stat().st_mode) == 0o600

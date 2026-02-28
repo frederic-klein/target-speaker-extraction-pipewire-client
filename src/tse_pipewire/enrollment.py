@@ -1,5 +1,6 @@
 """Speaker enrollment process - recording, quality check, and embedding extraction."""
 
+import os
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -57,7 +58,9 @@ def compute_snr(audio: np.ndarray, sr: int) -> float:
 def save_enrollment_wav(audio: np.ndarray, sr: int, path: Path) -> None:
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
+    os.chmod(path.parent, 0o700)
     sf.write(str(path), audio, sr)
+    os.chmod(path, 0o600)
 
 
 def enroll_speaker(
@@ -70,6 +73,7 @@ def enroll_speaker(
     """Record audio, check quality, extract and save speaker embedding."""
     profiles_dir = Path(profiles_dir)
     profiles_dir.mkdir(parents=True, exist_ok=True)
+    os.chmod(profiles_dir, 0o700)
 
     audio = sd.rec(
         int(duration * sample_rate),

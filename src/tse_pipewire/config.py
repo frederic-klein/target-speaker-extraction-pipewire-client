@@ -62,9 +62,9 @@ class Config:
         return self.profiles_dir / f"{name}.npy"
 
     def ensure_dirs(self):
-        self._config_dir.mkdir(parents=True, exist_ok=True)
-        self.profiles_dir.mkdir(parents=True, exist_ok=True)
-        self.models_dir.mkdir(parents=True, exist_ok=True)
+        for d in [self._config_dir, self.profiles_dir, self.models_dir]:
+            d.mkdir(parents=True, exist_ok=True)
+            os.chmod(d, 0o700)
 
     def get(self, dotted_key: str, default=None):
         parts = dotted_key.split(".")
@@ -87,9 +87,11 @@ class Config:
 
     def save(self):
         self._config_dir.mkdir(parents=True, exist_ok=True)
+        os.chmod(self._config_dir, 0o700)
         config_file = self._config_dir / "config.toml"
         with open(config_file, "w") as f:
             toml.dump(self._data, f)
+        os.chmod(config_file, 0o600)
 
     def load(self):
         config_file = self._config_dir / "config.toml"

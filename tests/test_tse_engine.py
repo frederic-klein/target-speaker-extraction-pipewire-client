@@ -5,6 +5,7 @@ from unittest.mock import MagicMock, patch
 import numpy as np
 import pytest
 
+from tse_pipewire.model_integrity import ModelIntegrityError
 from tse_pipewire.tse_engine import TSEEngine
 
 
@@ -165,3 +166,16 @@ class TestTSEEngine:
         result = engine.process_file(audio)
 
         assert len(result) == len(audio)
+
+    @patch("tse_pipewire.tse_engine.ort.InferenceSession")
+    def test_raises_on_checksum_mismatch(self, mock_session_cls, tmp_path):
+        model_file = tmp_path / "model.onnx"
+        model_file.write_bytes(b"model data")
+
+        checksums_file = tmp_path / "checksums.sha256"
+        checksums_file.write_text("badhash  model.onnx\n")
+
+        embedding = np.random.randn(256).astype(np.float32)
+
+        with pytest.raises(ModelIntegrityError, match="model.onnx"):
+            TSEEngine(model_path=str(model_file), embedding=embedding)

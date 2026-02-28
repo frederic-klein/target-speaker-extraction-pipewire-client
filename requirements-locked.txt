@@ -1,0 +1,16 @@
+# Pinned runtime dependencies - generated from venv
+# Verify with: pip install -r requirements-locked.txt
+cffi==2.0.0
+click==8.3.1
+flatbuffers==25.12.19
+mpmath==1.3.0
+numpy==2.4.2
+onnxruntime==1.24.2
+packaging==26.0
+protobuf==7.34.0
+pycparser==3.0
+scipy==1.17.1
+sounddevice==0.5.5
+soundfile==0.13.1
+sympy==1.14.0
+toml==0.10.2

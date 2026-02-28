@@ -1,10 +1,13 @@
 """Speaker embedding extraction using ONNX Runtime."""
 
+import os
 from pathlib import Path
 
 import numpy as np
 import onnxruntime as ort
 from scipy.signal import resample_poly
+
+from tse_pipewire.model_integrity import verify_model_integrity
 
 
 def _mel_filterbank(sr: int, n_fft: int, n_mels: int = 80) -> np.ndarray:
@@ -81,7 +84,9 @@ def compute_fbank(
 def save_embedding(embedding: np.ndarray, path: Path) -> None:
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
+    os.chmod(path.parent, 0o700)
     np.save(path, embedding)
+    os.chmod(path, 0o600)
 
 
 def load_embedding(path: Path) -> np.ndarray:
@@ -97,6 +102,8 @@ class EmbeddingExtractor:
     def __init__(self, model_path: str, target_sr: int = 16000):
         self._model_path = model_path
         self._target_sr = target_sr
+        checksums_path = Path(model_path).parent / "checksums.sha256"
+        verify_model_integrity(Path(model_path), checksums_path)
         providers = ["CPUExecutionProvider"]
         self._session = ort.InferenceSession(model_path, providers=providers)
         self._input_name = self._session.get_inputs()[0].name

@@ -199,3 +199,57 @@ class TestTestCommand:
         mock_engine_cls.assert_called_once()
         call_kwargs = mock_engine_cls.call_args
         assert call_kwargs[1]["segment_samples"] == 2560
+
+
+def test_delete_profile_command_exists():
+    runner = CliRunner()
+    result = runner.invoke(main, ["delete-profile", "--help"])
+    assert result.exit_code == 0
+    assert "--name" in result.output
+
+
+class TestDeleteProfileCommand:
+    @patch("tse_pipewire.cli.Config")
+    def test_delete_profile_removes_files(self, mock_config_cls, tmp_path):
+        mock_config = MagicMock()
+        mock_config.profiles_dir = tmp_path
+        mock_config_cls.return_value = mock_config
+
+        npy_file = tmp_path / "fred.npy"
+        wav_file = tmp_path / "fred_enrollment.wav"
+        npy_file.write_bytes(b"fake embedding")
+        wav_file.write_bytes(b"fake wav")
+
+        runner = CliRunner()
+        result = runner.invoke(main, ["delete-profile", "--name", "fred", "--yes"])
+        assert result.exit_code == 0
+        assert not npy_file.exists()
+        assert not wav_file.exists()
+        assert "fred.npy" in result.output
+        assert "fred_enrollment.wav" in result.output
+
+    @patch("tse_pipewire.cli.Config")
+    def test_delete_profile_no_profile_found(self, mock_config_cls, tmp_path):
+        mock_config = MagicMock()
+        mock_config.profiles_dir = tmp_path
+        mock_config_cls.return_value = mock_config
+
+        runner = CliRunner()
+        result = runner.invoke(main, ["delete-profile", "--name", "nonexistent", "--yes"])
+        assert result.exit_code == 0
+        assert "No profile found" in result.output
+
+    @patch("tse_pipewire.cli.Config")
+    def test_delete_profile_partial_files(self, mock_config_cls, tmp_path):
+        mock_config = MagicMock()
+        mock_config.profiles_dir = tmp_path
+        mock_config_cls.return_value = mock_config
+
+        npy_file = tmp_path / "fred.npy"
+        npy_file.write_bytes(b"fake embedding")
+
+        runner = CliRunner()
+        result = runner.invoke(main, ["delete-profile", "--name", "fred", "--yes"])
+        assert result.exit_code == 0
+        assert not npy_file.exists()
+        assert "fred.npy" in result.output

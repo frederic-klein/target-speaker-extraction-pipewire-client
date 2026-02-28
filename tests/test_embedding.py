@@ -1,5 +1,7 @@
 """Tests for speaker embedding computation."""
 
+import hashlib
+import stat
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
@@ -12,6 +14,7 @@ from tse_pipewire.embedding import (
     load_embedding,
     save_embedding,
 )
+from tse_pipewire.model_integrity import ModelIntegrityError
 
 
 def test_save_and_load_embedding(tmp_path):
@@ -34,6 +37,20 @@ def test_save_embedding_creates_parent_dirs(tmp_path):
     assert path.exists()
     loaded = load_embedding(path)
     np.testing.assert_array_almost_equal(embedding, loaded)
+
+
+def test_save_embedding_file_permissions_600(tmp_path):
+    embedding = np.random.randn(256).astype(np.float32)
+    path = tmp_path / "profiles" / "test.npy"
+    save_embedding(embedding, path)
+    assert stat.S_IMODE(path.stat().st_mode) == 0o600
+
+
+def test_save_embedding_parent_dir_permissions_700(tmp_path):
+    embedding = np.random.randn(256).astype(np.float32)
+    path = tmp_path / "profiles" / "test.npy"
+    save_embedding(embedding, path)
+    assert stat.S_IMODE(path.parent.stat().st_mode) == 0o700
 
 
 class TestComputeFbank:
@@ -148,3 +165,14 @@ class TestEmbeddingExtractor:
         assert path.exists()
         loaded = load_embedding(path)
         assert loaded.shape == (256,)
+
+    @patch("tse_pipewire.embedding.ort.InferenceSession")
+    def test_raises_on_checksum_mismatch(self, mock_session_cls, tmp_path):
+        model_file = tmp_path / "model.onnx"
+        model_file.write_bytes(b"model data")
+
+        checksums_file = tmp_path / "checksums.sha256"
+        checksums_file.write_text("badhash  model.onnx\n")
+
+        with pytest.raises(ModelIntegrityError, match="model.onnx"):
+            EmbeddingExtractor(model_path=str(model_file))
