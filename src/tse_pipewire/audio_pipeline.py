@@ -59,13 +59,13 @@ class AudioPipeline:
         # Accumulate in input buffer
         self._input_buffer = np.concatenate([self._input_buffer, downsampled])
 
-        chunk_size = self._engine.chunk_size
+        segment_samples = self._engine.segment_samples
 
-        # Process all complete chunks
-        while len(self._input_buffer) >= chunk_size:
-            chunk = self._input_buffer[:chunk_size]
-            self._input_buffer = self._input_buffer[chunk_size:]
-            processed = self._engine.process_chunk(chunk)
+        # Process all complete segments
+        while len(self._input_buffer) >= segment_samples:
+            segment = self._input_buffer[:segment_samples]
+            self._input_buffer = self._input_buffer[segment_samples:]
+            processed = self._engine.process_segment(segment)
             upsampled = self._upsample(processed)
             self._output_buffer = np.concatenate([self._output_buffer, upsampled])
 
